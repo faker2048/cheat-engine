@@ -17,7 +17,7 @@ jobs:
         submodules: recursive
 
     - name: Setup Lazarus
-      uses: gcarreno/setup-lazarus@v3.3.0
+      uses: gcarreno/setup-lazarus@v3.3.1
       with:
         lazarus-version: 2.2.2
         with-cache: false
