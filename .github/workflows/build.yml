@@ -17,10 +17,10 @@ jobs:
         submodules: recursive
 
     - name: Setup Lazarus
-      uses: gabr42/setup-lazarus@main
+      uses: gcarreno/setup-lazarus@v3.3.0
       with:
         lazarus-version: 2.2.2
-        with-msvc: true
+        with-cache: false
 
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.3.1
