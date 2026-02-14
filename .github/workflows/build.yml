@@ -1,0 +1,58 @@
+name: Build Cheat Engine
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup Lazarus
+      uses: gabr42/setup-lazarus@main
+      with:
+        lazarus-version: 2.2.2
+        with-msvc: true
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.3.1
+
+    - name: Build All Lazarus Projects
+      run: |
+        Get-ChildItem -Recurse -Filter *.lpi | ForEach-Object {
+          & "C:\lazarus\lazbuild.exe" $_.FullName --build-all
+        }
+      shell: pwsh
+
+    - name: Build MSVC Solutions
+      run: |
+        $solutions = @(
+          "Cheat Engine/Direct x mess/Direct x mess.sln",
+          "Cheat Engine/DotNetCompiler/CSCompiler/CSCompiler.sln",
+          "Cheat Engine/DotNetDataCollector/DotNetDataCollector.sln",
+          "Cheat Engine/DotNetInvasiveDataCollector/DotNetInvasiveDataCollector.sln",
+          "Cheat Engine/Java/CEJVMTI/CEJVMTI.sln",
+          "Cheat Engine/MonoDataCollector/MonoDataCollector.sln",
+          "Cheat Engine/tcclib/win32/tcc/tcc.sln",
+          "DBKKernel/DBKKernel.sln"
+        )
+        foreach ($sln in $solutions) {
+          echo "Building $sln..."
+          msbuild $sln /p:Configuration=Release /p:Platform=x64
+          msbuild $sln /p:Configuration=Release /p:Platform=x86
+        }
+      shell: pwsh
+
+    - name: Pack and Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: cheat-engine-build
+        path: Cheat Engine/bin
